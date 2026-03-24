@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pet Tour Tracking - Pawney</title>
+    <style>
+        :root {
+            /* Pawney Brand Colors */
+            --pawney-brown: #795035;
+            --pawney-blue: #4FA8D6;
+            --pawney-orange: #E89B53;
+            --pawney-yellow: #F7CB53;
+            
+            --bg-color: #FEF9F1; /* Soft warm white */
+            --card-bg: #FFFFFF;
+            --text-main: #5C3D26; /* Dark brown text */
+            --text-muted: #9E7D65; /* Light brown text */
+            --border-color: #F0E4D8;
+        }
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0;
+            padding-bottom: 90px;
+        }
+        .container { padding: 16px; }
+        
+        /* Header Card */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(121, 80, 53, 0.08); /* Warm shadow */
+            margin-bottom: 20px;
+            border: 2px solid #FFF;
+        }
+        .profile-img {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin-right: 16px;
+            object-fit: cover;
+            border: 3px solid var(--pawney-yellow); /* Yellow ring */
+        }
+        .profile-info h2 { margin: 0 0 4px 0; font-size: 18px; color: var(--pawney-brown); }
+        .profile-info p { margin: 0; font-size: 14px; color: var(--text-muted); }
+        
+        /* Progress Section */
+        .progress-section { margin-bottom: 24px; }
+        .progress-header {
+            display: flex; justify-content: space-between;
+            font-size: 14px; font-weight: 600; margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .progress-bar {
+            width: 100%; height: 12px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 40%;
+            background: var(--pawney-blue); /* Airplane Blue */
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        /* Timeline / Checklist */
+        .task-list { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 16px; 
+            box-shadow: 0 4px 12px rgba(121, 80, 53, 0.08); 
+        }
+        .task-item {
+            display: flex; align-items: flex-start;
+            padding: 14px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        .task-item:last-child { border-bottom: none; }
+        .checkbox-wrapper { margin-right: 12px; padding-top: 2px; }
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 22px; height: 22px;
+            accent-color: var(--pawney-blue);
+            cursor: pointer;
+        }
+        .task-content h4 { margin: 0 0 4px 0; font-size: 15px; color: var(--text-main); }
+        .task-content p { margin: 0; font-size: 13px; color: var(--text-muted); }
+        
+        /* Custom Badges using Logo Colors */
+        .status-badge {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 12px; font-size: 11px; font-weight: 600;
+            margin-top: 8px;
+        }
+        .status-done { 
+            background: #EAF4FA; 
+            color: var(--pawney-blue); 
+        }
+        .status-waiting { 
+            background: #FDF3E1; 
+            color: var(--pawney-orange); 
+        }
+
+        /* Sticky Bottom Button */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--card-bg); padding: 16px;
+            box-shadow: 0 -4px 15px rgba(121, 80, 53, 0.05);
+            display: flex; justify-content: space-between; gap: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+        .btn {
+            flex: 1; padding: 14px; border-radius: 14px;
+            border: none; font-size: 15px; font-weight: 600;
+            cursor: pointer; text-align: center; transition: 0.2s;
+        }
+        .btn-primary { 
+            background: var(--pawney-brown); 
+            color: white; 
+        }
+        .btn-primary:active { background: #5C3D26; }
+        
+        .btn-secondary { 
+            background: #FFF; 
+            color: var(--pawney-brown);
+            border: 2px solid var(--border-color);
+        }
+        .btn-secondary:active { background: var(--bg-color); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="profile-card">
+        <img src="https://cdn.mos.cms.futurecdn.net/hzBPPxRBuPc3b3TwqNgVMa-1920-80.jpg" alt="Pet" class="profile-img">
+        <div class="profile-info">
+            <h2>น้องลาเต้ (Pom)</h2>
+            <p>✈️ โตเกียว, ญี่ปุ่น</p>
+            <p>📅 บินวันที่: 15 พ.ย. 2026 (อีก 240 วัน)</p>
+        </div>
+    </div>
+
+    <div class="progress-section">
+        <div class="progress-header">
+            <span>สถานะการเตรียมตัว</span>
+            <span id="progress-text">40%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="task-list">
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" checked disabled>
+            </div>
+            <div class="task-content">
+                <h4>ฝังไมโครชิป (ISO 11784/11785)</h4>
+                <p>ดำเนินการแล้วเมื่อ 10 ม.ค. 2026</p>
+                <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" checked disabled>
+            </div>
+            <div class="task-content">
+                <h4>ฉีดวัคซีนพิษสุนัขบ้า (เข็ม 1)</h4>
+                <p>เข็มล่าสุด: 15 ก.พ. 2026</p>
+                <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" checked disabled>
+            </div>
+            <div class="task-content">
+                <h4>ฉีดวัคซีนพิษสุนัขบ้า (เข็ม 2)</h4>
+                <p>เข็มล่าสุด: 15 มิ.ย. 2026</p>
+                <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" onchange="updateProgress()">
+            </div>
+            <div class="task-content">
+                <h4>เจาะเลือดตรวจภูมิ (Rabies Test)</h4>
+                <p>รอผลจาก Lab ญี่ปุ่น (เหลือเวลารอ 180 วัน)</p>
+                <span class="status-badge status-waiting">กำลังดำเนินการ</span>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" onchange="updateProgress()">
+            </div>
+            <div class="task-content">
+                <h4>แจ้งนำเข้าล่วงหน้า (Advance Notification)</h4>
+                <p>ยื่นเอกสาร 40 วันก่อนบิน</p>
+            </div>
+        </div>
+        <div class="task-item">
+            <div class="checkbox-wrapper">
+                <input type="checkbox" class="task-check" onchange="updateProgress()">
+            </div>
+            <div class="task-content">
+                <h4>ขอใบรับรองสุขภาพ (Health Certificate)</h4>
+                <p>ขอที่กรมปศุสัตว์ 2-7 วันก่อนเดินทาง</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <button class="btn btn-secondary">📞 ติดต่อแอดมิน</button>
+    <button class="btn btn-primary">📁 อัปโหลดเอกสาร</button>
+</div>
+
+<script>
+    function updateProgress() {
+        const checkboxes = document.querySelectorAll('.task-check');
+        const checkedCount = document.querySelectorAll('.task-check:checked').length;
+        const percentage = Math.round((checkedCount / checkboxes.length) * 100);
+        
+        document.getElementById('progress-fill').style.width = percentage + '%';
+        document.getElementById('progress-text').innerText = percentage + '%';
+    }
+    
+    window.onload = updateProgress;
+</script>
+
+</body>
+</html>
