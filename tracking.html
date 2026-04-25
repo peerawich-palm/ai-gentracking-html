@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pet Tour Tracking - Pawney</title>
+    <style>
+        :root {
+            /* Pawney Brand Colors */
+            --pawney-brown: #795035;
+            --pawney-blue: #4FA8D6;
+            --pawney-green: #6BCB77; /* Added for 100% success */
+            --pawney-orange: #E89B53;
+            --pawney-yellow: #F7CB53;
+            
+            --bg-color: #FEF9F1;
+            --card-bg: #FFFFFF;
+            --text-main: #5C3D26;
+            --text-muted: #9E7D65;
+            --border-color: #F0E4D8;
+        }
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; }
+        body { 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 0;
+            padding-bottom: 90px;
+        }
+        .container { padding: 16px; }
+        
+        /* Header Card */
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(121, 80, 53, 0.08);
+            margin-bottom: 20px;
+            border: 2px solid #FFF;
+            transition: transform 0.2s;
+        }
+        .profile-card:active { transform: scale(0.98); }
+        .profile-img {
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            margin-right: 16px;
+            object-fit: cover;
+            border: 3px solid var(--pawney-yellow);
+        }
+        .profile-info h2 { margin: 0 0 4px 0; font-size: 18px; color: var(--pawney-brown); }
+        .profile-info p { margin: 0; font-size: 14px; color: var(--text-muted); }
+        
+        /* Progress Section */
+        .progress-section { margin-bottom: 24px; }
+        .progress-header {
+            display: flex; justify-content: space-between;
+            font-size: 14px; font-weight: 600; margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        .progress-bar {
+            width: 100%; height: 12px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: var(--pawney-blue);
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s;
+            border-radius: 10px;
+        }
+
+        /* Timeline / Checklist */
+        .task-list { 
+            background: var(--card-bg); 
+            border-radius: 20px; 
+            padding: 16px; 
+            box-shadow: 0 4px 12px rgba(121, 80, 53, 0.08); 
+        }
+        .task-item {
+            padding: 14px 0;
+            border-bottom: 1px dashed var(--border-color);
+            transition: background-color 0.3s;
+        }
+        .task-item:last-child { border-bottom: none; }
+        .task-header {
+            display: flex; align-items: flex-start;
+            cursor: pointer; /* Makes it clear it's interactive */
+        }
+        .checkbox-wrapper { margin-right: 12px; padding-top: 2px; }
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 22px; height: 22px;
+            accent-color: var(--pawney-blue);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .checkbox-wrapper input[type="checkbox"]:active { transform: scale(0.8); }
+        .task-content { flex: 1; }
+        .task-content h4 { 
+            margin: 0 0 4px 0; font-size: 15px; color: var(--text-main); 
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .task-content p { margin: 0; font-size: 13px; color: var(--text-muted); }
+        
+        /* Expandable Details */
+        .task-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, margin-top 0.3s;
+            padding-left: 34px;
+        }
+        .task-details.open {
+            max-height: 150px;
+            margin-top: 10px;
+        }
+        .detail-box {
+            background: var(--bg-color);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+        .chevron {
+            font-size: 12px;
+            transition: transform 0.3s;
+            color: var(--border-color);
+        }
+        .open .chevron { transform: rotate(180deg); color: var(--pawney-brown); }
+
+        /* Custom Badges */
+        .status-badge {
+            display: inline-block; padding: 4px 10px;
+            border-radius: 12px; font-size: 11px; font-weight: 600;
+            margin-top: 8px;
+            transition: all 0.3s;
+        }
+        .status-done { background: #EAF4FA; color: var(--pawney-blue); }
+        .status-waiting { background: #FDF3E1; color: var(--pawney-orange); }
+        .status-todo { background: #F5F5F5; color: #999; }
+
+        /* Sticky Bottom Button */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--card-bg); padding: 16px;
+            box-shadow: 0 -4px 15px rgba(121, 80, 53, 0.05);
+            display: flex; justify-content: space-between; gap: 12px;
+            border-top: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        .btn {
+            flex: 1; padding: 14px; border-radius: 14px;
+            border: none; font-size: 15px; font-weight: 600;
+            cursor: pointer; text-align: center; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--pawney-brown); color: white; }
+        .btn-primary:active { background: #5C3D26; transform: translateY(2px); }
+        
+        .btn-secondary { background: #FFF; color: var(--pawney-brown); border: 2px solid var(--border-color); }
+        .btn-secondary:active { background: var(--bg-color); transform: translateY(2px); }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex; justify-content: center; align-items: flex-end;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 20;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--card-bg);
+            width: 100%; border-radius: 24px 24px 0 0;
+            padding: 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+        .modal-close {
+            display: block; width: 40px; height: 5px;
+            background: var(--border-color); border-radius: 3px;
+            margin: 0 auto 20px auto;
+        }
+
+        /* Toast Styles */
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: var(--pawney-brown); color: white;
+            padding: 12px 24px; border-radius: 30px;
+            font-size: 14px; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 30;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="toast" class="toast">กำลังเชื่อมต่อกับแอดมิน... 🐾</div>
+
+<div class="container">
+    <div class="profile-card">
+        <img src="https://cdn.mos.cms.futurecdn.net/hzBPPxRBuPc3b3TwqNgVMa-1920-80.jpg" alt="Pet" class="profile-img">
+        <div class="profile-info">
+            <h2>น้องลาเต้ (Pom)</h2>
+            <p>✈️ โตเกียว, ญี่ปุ่น</p>
+            <p>📅 บินวันที่: 15 พ.ย. 2026 (อีก 240 วัน)</p>
+        </div>
+    </div>
+
+    <div class="progress-section">
+        <div class="progress-header">
+            <span id="progress-title">สถานะการเตรียมตัว</span>
+            <span id="progress-text">0%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="task-list">
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" checked disabled>
+                </div>
+                <div class="task-content">
+                    <h4>ฝังไมโครชิป (ISO 11784/11785) <span class="chevron">▼</span></h4>
+                    <p>ดำเนินการแล้วเมื่อ 10 ม.ค. 2026</p>
+                    <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+                </div>
+            </div>
+            <div class="task-details">
+                <div class="detail-box">
+                    หมายเลขไมโครชิป: 900XXXXXXXXXXXX<br>
+                    คลินิก: รพ.สัตว์ทองหล่อ
+                </div>
+            </div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" checked disabled>
+                </div>
+                <div class="task-content">
+                    <h4>ฉีดวัคซีนพิษสุนัขบ้า (เข็ม 1) <span class="chevron">▼</span></h4>
+                    <p>เข็มล่าสุด: 15 ก.พ. 2026</p>
+                    <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" checked disabled>
+                </div>
+                <div class="task-content">
+                    <h4>ฉีดวัคซีนพิษสุนัขบ้า (เข็ม 2) <span class="chevron">▼</span></h4>
+                    <p>เข็มล่าสุด: 15 มิ.ย. 2026</p>
+                    <span class="status-badge status-done">เสร็จสมบูรณ์</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" onchange="updateProgress(this, event)">
+                </div>
+                <div class="task-content">
+                    <h4>เจาะเลือดตรวจภูมิ (Rabies Test) <span class="chevron">▼</span></h4>
+                    <p>รอผลจาก Lab ญี่ปุ่น (เหลือเวลารอ 180 วัน)</p>
+                    <span class="status-badge status-waiting dynamic-badge">กำลังดำเนินการ</span>
+                </div>
+            </div>
+            <div class="task-details">
+                <div class="detail-box" style="display: flex; gap: 8px; margin-top: 5px;">
+                    <button class="btn btn-secondary" style="padding: 8px; font-size: 12px;" onclick="event.stopPropagation(); openModal()">📎 อัปโหลดผลเลือด</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" onchange="updateProgress(this, event)">
+                </div>
+                <div class="task-content">
+                    <h4>แจ้งนำเข้าล่วงหน้า (Advance) <span class="chevron">▼</span></h4>
+                    <p>ยื่นเอกสาร 40 วันก่อนบิน</p>
+                    <span class="status-badge status-todo dynamic-badge">ยังไม่เริ่ม</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="task-item">
+            <div class="task-header" onclick="toggleDetails(this)">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" class="task-check" onchange="updateProgress(this, event)">
+                </div>
+                <div class="task-content">
+                    <h4>ขอใบรับรองสุขภาพ <span class="chevron">▼</span></h4>
+                    <p>ขอที่กรมปศุสัตว์ 2-7 วันก่อนเดินทาง</p>
+                    <span class="status-badge status-todo dynamic-badge">ยังไม่เริ่ม</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <button class="btn btn-secondary" onclick="showToast()">📞 ติดต่อแอดมิน</button>
+    <button class="btn btn-primary" onclick="openModal()">📁 อัปโหลดเอกสาร</button>
+</div>
+
+<div id="uploadModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-close" onclick="closeModal(event)"></div>
+        <h3 style="margin: 0 0 16px 0; color: var(--text-main); text-align: center;">เลือกประเภทเอกสาร</h3>
+        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">📄 ใบวัคซีน (Vaccine Book)</button>
+        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">💉 ผลเลือด (RNATT Report)</button>
+        <button class="btn btn-primary" style="width: 100%;" onclick="closeModal(event)">ปิดหน้าต่าง</button>
+    </div>
+</div>
+
+<script>
+    // Update Progress and Badges
+    function updateProgress(checkboxElem, event) {
+        if(event) event.stopPropagation(); // Prevent opening accordion when clicking checkbox
+
+        // Update specific badge if this checkbox triggered it
+        if (checkboxElem) {
+            const badge = checkboxElem.closest('.task-item').querySelector('.dynamic-badge');
+            if (badge) {
+                if (checkboxElem.checked) {
+                    badge.className = 'status-badge status-done dynamic-badge';
+                    badge.innerText = 'เสร็จสมบูรณ์';
+                } else {
+                    // Logic for reverting (can be customized)
+                    badge.className = 'status-badge status-waiting dynamic-badge';
+                    badge.innerText = 'กำลังดำเนินการ';
+                }
+            }
+        }
+
+        // Calculate Total Progress
+        const checkboxes = document.querySelectorAll('.task-check');
+        const checkedCount = document.querySelectorAll('.task-check:checked').length;
+        const percentage = Math.round((checkedCount / checkboxes.length) * 100);
+        
+        const fillBar = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const progressTitle = document.getElementById('progress-title');
+        
+        fillBar.style.width = percentage + '%';
+        progressText.innerText = percentage + '%';
+
+        // 100% Celebration
+        if (percentage === 100) {
+            fillBar.style.backgroundColor = 'var(--pawney-green)';
+            progressTitle.innerText = '🎉 พร้อมบินแล้ว!';
+            progressTitle.style.color = 'var(--pawney-green)';
+        } else {
+            fillBar.style.backgroundColor = 'var(--pawney-blue)';
+            progressTitle.innerText = 'สถานะการเตรียมตัว';
+            progressTitle.style.color = 'var(--text-main)';
+        }
+    }
+    
+    // Accordion Toggle for Tasks
+    function toggleDetails(element) {
+        // Toggle chevron rotation
+        element.classList.toggle('open');
+        
+        // Find the details div next to the header
+        const details = element.nextElementSibling;
+        if (details && details.classList.contains('task-details')) {
+            details.classList.toggle('open');
+        }
+    }
+
+    // Modal Functions
+    function openModal() {
+        document.getElementById('uploadModal').classList.add('active');
+    }
+    
+    function closeModal(event) {
+        if(event) event.stopPropagation();
+        document.getElementById('uploadModal').classList.remove('active');
+    }
+
+    // Toast Notification
+    function showToast() {
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000); // Hide after 3 seconds
+    }
+
+    // Initialize progress on load
+    window.onload = () => updateProgress();
+</script>
+
+</body>
+</html>
